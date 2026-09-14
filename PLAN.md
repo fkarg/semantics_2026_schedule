@@ -64,3 +64,13 @@ Room/time readability: replace session-category colours with a fixed seven-room
 palette keyed by room name, shared by headers and event cells. Keep shared and
 filtered-empty cells neutral. Preserve all published time rows in displayed days;
 rows with no matching sessions shrink to 22px rather than disappearing.
+
+Shared schedule context: room-spanning events have no star and bypass the
+selected-only restriction while respecting day/search filters. They remain visible
+without any favourites; the empty-selection notice still refers to selectable
+sessions. Existing saved session keys remain unchanged. Verify generation, shared
+visibility/counts, compact spans, and persistence in the browser workflow.
+Internal GPT-6 Astra read-only review traced nullable star access, selection counts,
+filter predicates, all 19 shared entries/partial spans, and layout restoration.
+No defects found; outcome: no decision impact. All 11 unit tests and both Chrome
+workflows passed, including an actual formerly selectable lunch storage key.

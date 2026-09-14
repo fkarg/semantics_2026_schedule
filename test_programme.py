@@ -86,7 +86,9 @@ class ProgrammeTests(unittest.TestCase):
             original = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
             keys = [b['data-favourite-id'] for b in original.select('.favourite')]
             self.assertEqual(len(keys), len(set(keys)))
-            self.assertEqual(len(keys), len(self.sessions))
+            self.assertEqual(len(keys), sum(bool(s['room']) for s in self.sessions))
+            for shared in original.select('.session[data-room=""]'):
+                self.assertIsNone(shared.select_one('.favourite'))
             # A row inserted above the programme must not move stars to other events.
             moved = deepcopy(self.sessions)
             for session in moved:

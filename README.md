@@ -23,7 +23,8 @@ Search includes titles, speakers, abstracts and workshop descriptions. Day links
 retain your search and room filter. Shared events remain visible for every room.
 
 Click **☆** beside a session heading to favourite the whole session, including its
-talks. **Selected only** shows favourites within the current day/search/room filters;
+talks. Shared events (coffee, lunch, networking, etc.) have no stars and stay visible
+in **Selected only**, alongside favourites within the current day/search/room filters;
 choose **All days** to see selections across the conference. Uncheck it to browse
 everything again. Selected-only hides unused room columns for each day and gives
 empty cells a neutral background. Empty time slots stay visible as thin rows,

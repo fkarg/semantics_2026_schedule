@@ -36,7 +36,7 @@ if (search) {
     if (canSave) {
       try {
         for (const entry of entries) {
-          entry.selected = localStorage.getItem(storagePrefix + entry.button.dataset.favouriteId) === '1';
+          entry.selected = Boolean(entry.button && localStorage.getItem(storagePrefix + entry.button.dataset.favouriteId) === '1');
         }
       } catch {
         canSave = false;
@@ -46,6 +46,7 @@ if (search) {
     filter();
   }
   for (const entry of entries) {
+    if (!entry.button) continue;
     entry.button.hidden = false;
     entry.button.addEventListener('click', () => {
       entry.selected = !entry.selected;
@@ -65,17 +66,21 @@ if (search) {
   function filter() {
     const words = normalize(search.value).trim().split(/\s+/).filter(Boolean);
     let count = 0;
+    let selectedCount = 0;
     for (const {element, text, day, button, selected} of entries) {
-      button.setAttribute('aria-pressed', String(selected));
-      button.textContent = selected ? '★' : '☆';
-      button.title = selected ? 'Remove from favourites' : 'Favourite this session';
+      if (button) {
+        button.setAttribute('aria-pressed', String(selected));
+        button.textContent = selected ? '★' : '☆';
+        button.title = selected ? 'Remove from favourites' : 'Favourite this session';
+      }
       element.classList.toggle('favourited', selected);
       const visible = (!selectedDay || selectedDay === day) &&
         (!room.value || !element.dataset.room || element.dataset.room === room.value) &&
-        (!selectedOnly.checked || selected) &&
+        (!selectedOnly.checked || !element.dataset.room || selected) &&
         words.every(word => text.includes(word));
       element.hidden = !visible;
       count += Number(visible);
+      selectedCount += Number(visible && selected);
     }
     for (const row of document.querySelectorAll('.time-group')) {
       row.classList.toggle('empty-slot', !row.querySelector('.session:not([hidden])'));
@@ -89,7 +94,7 @@ if (search) {
       const sharedOnly = selectedOnly.checked && active.length > 0 && columns.size === 0;
       if (!selectedOnly.checked) headers.forEach((_, column) => columns.add(column));
       else if (!sharedOnly) {
-        // A selected shared event must retain a cell even when none of its
+        // A shared event must retain a cell even when none of its
         // original columns contain a selected room-specific session.
         for (const {column, span} of active) {
           if (![...columns].some(index => index >= column && index < column + span)) columns.add(column);
@@ -110,7 +115,7 @@ if (search) {
       }
       table.style.setProperty('--room-count', String(sharedOnly ? 1 : Math.max(1, columns.size)));
     }
-    document.querySelector('#empty').hidden = count > 0;
+    document.querySelector('#empty').hidden = selectedOnly.checked ? selectedCount > 0 : count > 0;
     document.querySelector('#empty').textContent = selectedOnly.checked ?
       'No selected sessions match this view. Uncheck “Selected only” to browse and star sessions.' :
       'No matching sessions. Try another search or clear the filters.';

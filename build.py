@@ -303,7 +303,10 @@ def build_site(sessions, destination, stamp):
                 # silently move a favourite to a different session.
                 identity = [session['day'], session['time'], session['room'], session['source'] or session['title']]
                 favourite_id = hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:16]
-                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell" data-room="{escape(session["room"], quote=True)}"><article id="{session["id"]}" class="session{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2><button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button></div>'
+                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell" data-room="{escape(session["room"], quote=True)}"><article id="{session["id"]}" class="session{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2>'
+                if session['room']:
+                    body += f'<button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button>'
+                body += '</div>'
                 if session['chair']:
                     body += '<p class="chair">Chair: '+escape(session['chair'])+'</p>'
                 for talk in session['talks']:

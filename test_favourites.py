@@ -14,6 +14,8 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     context.set_offline(True)
     page = context.pages[0]
     page.goto(ALL)
+    # Previously saved Tuesday lunch must no longer count as a favourite.
+    page.evaluate("localStorage.setItem('semantics2026:favourite:2550bea2c5e82e74', '1')")
     first = page.locator(FIRST + ' .favourite')
     expect(first).to_have_attribute('aria-pressed', 'false', timeout=1000)
     before = page.url
@@ -23,13 +25,16 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.reload()
     expect(first).to_have_attribute('aria-pressed', 'true')
     page.locator('#selected-only').check()
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     expect(page.locator(FIRST)).to_be_visible()
     expect(page.locator(FIRST).locator('xpath=ancestor::td')).to_have_attribute('data-column', '0')
-    expect(page.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Concertzaal'])
+    expect(page.locator('[data-day="2026-09-16"] thead th:visible')).to_have_text(['Time · CEST', 'Concertzaal', 'Kraakhuis'])
+    expect(page.locator('.session[data-room=""]:visible')).to_have_count(19)
+    expect(page.locator('.session[data-room=""] .favourite')).to_have_count(0)
+    expect(page.locator('#selected-count')).to_have_text('(1)')
     page.reload()
     expect(page.locator('#selected-only')).to_be_checked()
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     page.locator('.days a[data-day="2026-09-17"]').click()
     expect(page.locator('#selected-only')).to_be_checked()
     expect(page.locator('#empty')).to_be_visible()
@@ -41,9 +46,9 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     other.goto(ALL)
     expect(other.locator(FIRST + ' .favourite')).to_have_attribute('aria-pressed', 'true')
     other.locator(SECOND + ' .favourite').click()
-    expect(page.locator('.session:visible')).to_have_count(2)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(2)
     first.click()
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     expect(other.locator(FIRST + ' .favourite')).to_have_attribute('aria-pressed', 'false')
     expect(other.locator(SECOND + ' .favourite')).to_have_attribute('aria-pressed', 'true')
     # Search and room constraints still intersect with selected-only.
@@ -53,7 +58,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.locator('#room').select_option('Kabinet')
     expect(page.locator('#empty')).to_be_visible()
     page.locator('#room').select_option('Kraakhuis')
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     context.close()
 
     # Collapse unused rooms, neutralise hidden-event colours and resize shared spans.
@@ -64,7 +69,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     room_colours = compact.locator('.day:visible thead th:not(.time-cell)').evaluate_all(
         'cells => Object.fromEntries(cells.map(cell => [cell.textContent, getComputedStyle(cell).backgroundColor]))')
     # Distinct rooms and times leave a gap where an unselected industry event sat.
-    for session_id in ['2026-09-15-c6', '2026-09-15-d10', '2026-09-15-b7']:
+    for session_id in ['2026-09-15-c6', '2026-09-15-d10']:
         compact.locator(f'[id="{session_id}"] .favourite').click()
     compact.locator('#selected-only').check()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Kraakhuis', 'Kabinet'])
@@ -82,7 +87,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     lunch = compact.locator('[id="2026-09-15-b7"]').locator('xpath=ancestor::td')
     expect(lunch).to_have_attribute('colspan', '2')
     compact.screenshot(path='/tmp/semantics-selected-rooms.png')
-    # A day with just a shared event still has one truthful, readable column.
+    # With no selections, shared events remain as context in one column.
     for session_id in ['2026-09-15-c6', '2026-09-15-d10']:
         compact.locator(f'[id="{session_id}"] .favourite').click()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Shared events'])
@@ -90,6 +95,9 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     assert shared_header.evaluate('(cell) => getComputedStyle(cell).backgroundColor') not in room_colours.values()
     expect(lunch).to_have_attribute('colspan', '1')
     expect(compact.locator('[id="2026-09-15-b7"]')).to_be_visible()
+    expect(compact.locator('.session[data-room=""]:visible')).to_have_count(6)
+    expect(compact.locator('#selected-count')).to_have_text('(0)')
+    expect(compact.locator('#empty')).to_be_visible()
     expect(compact.locator('.day:visible tbody tr:visible')).to_have_count(12)
     assert gap.bounding_box()['height'] <= 30
     for row in compact.locator('.day:visible tbody tr').all():
@@ -103,8 +111,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     assert empty.evaluate('(cell) => getComputedStyle(cell).backgroundColor') != 'rgb(237, 241, 243)'
     # Partial shared spans must not disappear when disjoint from selected rooms.
     compact.goto(URL + '?day=2026-09-16')
-    for session_id in ['2026-09-16-b6', '2026-09-16-c10']:
-        compact.locator(f'[id="{session_id}"] .favourite').click()
+    compact.locator('[id="2026-09-16-b6"] .favourite').click()
     compact.locator('#selected-only').check()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Concertzaal', 'Kraakhuis'])
     partial = compact.locator('[id="2026-09-16-c10"]')
@@ -120,7 +127,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     context.set_offline(True)
     page = context.pages[0]
     page.goto(ALL + '&selected=1')
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     expect(page.locator(SECOND + ' .favourite')).to_have_attribute('aria-pressed', 'true')
     page.locator(SECOND + ' .favourite').click()
     expect(page.locator('#empty')).to_be_visible()
@@ -142,7 +149,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.locator(FIRST + ' .favourite').click()
     expect(page.locator('#storage-notice')).to_be_visible()
     page.locator('#selected-only').check()
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     assert not errors, errors
     context.close()
     # Reading may work even when writes are rejected (for example, quota limits).
@@ -155,6 +162,6 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.evaluate("window.dispatchEvent(new Event('focus'))")
     expect(page.locator(FIRST + ' .favourite')).to_have_attribute('aria-pressed', 'true')
     page.locator('#selected-only').check()
-    expect(page.locator('.session:visible')).to_have_count(1)
+    expect(page.locator('.session[data-room]:not([data-room=""]):visible')).to_have_count(1)
     browser.close()
     print('Favourites checks passed: reload, profile restart, day links, filters, cross-tab changes, unselect, and unavailable storage.')
