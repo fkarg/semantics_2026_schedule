@@ -12,7 +12,7 @@ open site/index.html
 Talk and session titles are ordinary links: use Command/Ctrl-click, middle-click,
 or the browser's “Open Link in New Tab”. “Abstract” expands details in place.
 The timetable follows the CCC Congress Fahrplan's room/time comparison approach:
-rooms stay in fixed columns and published session intervals form the rows.
+rooms stay in fixed columns in the full view and published session intervals form the rows.
 Room headers stay pinned when scrolling down; the time column stays pinned when
 scrolling right. Within a long session, its time range also sticks below the header.
 Smaller screens scroll the table horizontally instead of stacking rooms into cards.
@@ -23,7 +23,10 @@ retain your search and room filter. Shared events remain visible for every room.
 Click **☆** beside a session heading to favourite the whole session, including its
 talks. **Selected only** shows favourites within the current day/search/room filters;
 choose **All days** to see selections across the conference. Uncheck it to browse
-everything again. Stars are saved in this browser and sync between programme tabs.
+everything again. Selected-only hides unused room columns for each day and gives
+empty cells a neutral background. Shared events span the remaining rooms; days
+with only shared events use one “Shared events” column. Switching back restores
+the full room layout. Stars are saved in this browser and sync between programme tabs.
 The star controls live on the timetable, not the separate detail pages.
 
 Saving was verified in Chrome with the directly opened local file, including a

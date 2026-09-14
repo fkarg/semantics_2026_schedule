@@ -26,6 +26,7 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     expect(page.locator('.session:visible')).to_have_count(1)
     expect(page.locator(FIRST)).to_be_visible()
     expect(page.locator(FIRST).locator('xpath=ancestor::td')).to_have_attribute('data-column', '0')
+    expect(page.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Concertzaal'])
     page.reload()
     expect(page.locator('#selected-only')).to_be_checked()
     expect(page.locator('.session:visible')).to_have_count(1)
@@ -54,6 +55,47 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.locator('#room').select_option('Kraakhuis')
     expect(page.locator('.session:visible')).to_have_count(1)
     context.close()
+
+    # Collapse unused rooms, neutralise hidden-event colours and resize shared spans.
+    browser = p.chromium.launch(channel='chrome', headless=True)
+    compact_context = browser.new_context(offline=True, viewport={'width': 1440, 'height': 1000})
+    compact = compact_context.new_page()
+    compact.goto(URL + '?day=2026-09-15')
+    # Distinct rooms and times leave a gap where an unselected industry event sat.
+    for session_id in ['2026-09-15-c6', '2026-09-15-d10', '2026-09-15-b7']:
+        compact.locator(f'[id="{session_id}"] .favourite').click()
+    compact.locator('#selected-only').check()
+    expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Kraakhuis', 'Kabinet'])
+    empty = compact.locator('[id="2026-09-15-d6"]').locator('xpath=ancestor::td')
+    expect(empty).to_be_visible()
+    assert empty.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == 'rgb(237, 241, 243)'
+    lunch = compact.locator('[id="2026-09-15-b7"]').locator('xpath=ancestor::td')
+    expect(lunch).to_have_attribute('colspan', '2')
+    compact.screenshot(path='/tmp/semantics-selected-rooms.png')
+    # A day with just a shared event still has one truthful, readable column.
+    for session_id in ['2026-09-15-c6', '2026-09-15-d10']:
+        compact.locator(f'[id="{session_id}"] .favourite').click()
+    expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Shared events'])
+    expect(lunch).to_have_attribute('colspan', '1')
+    expect(compact.locator('[id="2026-09-15-b7"]')).to_be_visible()
+    compact.locator('#selected-only').uncheck()
+    expect(compact.locator('.day:visible thead th:visible')).to_have_text(
+        ['Time · CEST', 'Concertzaal', 'Kraakhuis', 'Kabinet', 'Anatomisch Theater', 'Suite +1', 'Meeting Room', 'Baudelo'])
+    expect(lunch).to_have_attribute('colspan', '7')
+    assert empty.evaluate('(cell) => getComputedStyle(cell).backgroundColor') != 'rgb(237, 241, 243)'
+    # Partial shared spans must not disappear when disjoint from selected rooms.
+    compact.goto(URL + '?day=2026-09-16')
+    for session_id in ['2026-09-16-b6', '2026-09-16-c10']:
+        compact.locator(f'[id="{session_id}"] .favourite').click()
+    compact.locator('#selected-only').check()
+    expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Concertzaal', 'Kraakhuis'])
+    partial = compact.locator('[id="2026-09-16-c10"]')
+    expect(partial).to_be_visible()
+    expect(partial.locator('xpath=ancestor::td')).to_have_attribute('colspan', '1')
+    compact.locator('#selected-only').uncheck()
+    expect(partial.locator('xpath=ancestor::td')).to_have_attribute('colspan', '3')
+    compact_context.close()
+    browser.close()
 
     # Actual browser-profile restart, not just a retained in-memory page.
     context = p.chromium.launch_persistent_context(profile, channel='chrome', headless=True)

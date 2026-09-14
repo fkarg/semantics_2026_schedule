@@ -19,6 +19,19 @@ if (search) {
     element, text: normalize(element.dataset.search), day: element.closest('.day').dataset.day,
     button: element.querySelector('.favourite'), selected: false
   }));
+  // Retain original coordinates and spans so toggling the view is reversible.
+  const tables = [...document.querySelectorAll('.timetable')].map(table => {
+    const headers = [...table.tHead.rows[0].cells].slice(1).map(cell => ({cell, title: cell.textContent}));
+    const cells = [];
+    for (const row of table.tBodies[0].rows) {
+      let column = 0;
+      for (const cell of row.querySelectorAll('td')) {
+        cells.push({cell, column, span: cell.colSpan, session: cell.querySelector('.session')});
+        column += cell.colSpan;
+      }
+    }
+    return {table, headers, cells};
+  });
   function readSelection() {
     if (canSave) {
       try {
@@ -66,6 +79,31 @@ if (search) {
     }
     for (const group of document.querySelectorAll('.time-group, .day')) {
       group.hidden = !group.querySelector('.session:not([hidden])');
+    }
+    for (const {table, headers, cells} of tables) {
+      const active = cells.filter(({session}) => session && !session.hidden);
+      const columns = new Set(active.filter(({session}) => session.dataset.room).map(({column}) => column));
+      const sharedOnly = selectedOnly.checked && active.length > 0 && columns.size === 0;
+      if (!selectedOnly.checked) headers.forEach((_, column) => columns.add(column));
+      else if (!sharedOnly) {
+        // A selected shared event must retain a cell even when none of its
+        // original columns contain a selected room-specific session.
+        for (const {column, span} of active) {
+          if (![...columns].some(index => index >= column && index < column + span)) columns.add(column);
+        }
+      }
+      headers.forEach(({cell, title}, column) => {
+        cell.hidden = sharedOnly ? column !== 0 : !columns.has(column);
+        cell.textContent = sharedOnly && column === 0 ? 'Shared events' : title;
+      });
+      for (const {cell, column, span, session} of cells) {
+        const visibleSpan = sharedOnly ? Number(Boolean(session && !session.hidden)) :
+          [...columns].filter(index => index >= column && index < column + span).length;
+        cell.hidden = visibleSpan === 0;
+        cell.colSpan = Math.max(1, visibleSpan);
+        cell.classList.toggle('filtered-empty', Boolean(session && session.hidden));
+      }
+      table.style.setProperty('--room-count', String(sharedOnly ? 1 : Math.max(1, columns.size)));
     }
     document.querySelector('#empty').hidden = count > 0;
     document.querySelector('#empty').textContent = selectedOnly.checked ?

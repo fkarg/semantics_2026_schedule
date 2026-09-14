@@ -53,3 +53,9 @@ row-independent identities, cross-tab writes, storage failures, table structure 
 navigation. Outcome: added verification, making its coordinate-change check an
 automated regression test. External guidance confirmed file:// storage is browser
 dependent; real Chrome workflow checks cover reload, restart and cross-tab use.
+
+Selected-view refinement: remove unused room columns per day, neutralise filtered
+cell backgrounds, recompute shared colspans and restore original coordinates when
+returning to the full programme. Shared-only days use one Shared events column.
+Internal GPT-6 Astra delta review found no alignment/reversibility defect; outcome:
+added verification for a partial shared span disjoint from selected room columns.
