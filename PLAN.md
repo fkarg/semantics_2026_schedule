@@ -59,3 +59,8 @@ cell backgrounds, recompute shared colspans and restore original coordinates whe
 returning to the full programme. Shared-only days use one Shared events column.
 Internal GPT-6 Astra delta review found no alignment/reversibility defect; outcome:
 added verification for a partial shared span disjoint from selected room columns.
+
+Room/time readability: replace session-category colours with a fixed seven-room
+palette keyed by room name, shared by headers and event cells. Keep shared and
+filtered-empty cells neutral. Preserve all published time rows in displayed days;
+rows with no matching sessions shrink to 22px rather than disappearing.

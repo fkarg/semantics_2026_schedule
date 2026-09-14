@@ -17,6 +17,20 @@ with sync_playwright() as p:
     expect(page.locator('.session:visible')).to_have_count(66)
     expect(page.locator('a.talk-title')).to_have_count(61)
 
+    # Room colours identify physical rooms, not tracks or changing column positions.
+    colours = page.locator('.event-cell').evaluate_all('''cells => cells.flatMap(cell => {
+      const room = cell.querySelector('.session').dataset.room;
+      return room ? [{room, colour: getComputedStyle(cell).backgroundColor}] : [];
+    })''')
+    by_room = {}
+    for item in colours:
+        by_room.setdefault(item['room'], set()).add(item['colour'])
+    assert len(by_room) == 7
+    assert all(len(values) == 1 for values in by_room.values()), by_room
+    assert len({next(iter(values)) for values in by_room.values()}) == 7, by_room
+    for header in page.locator('thead th:not(.time-cell)').all():
+        assert header.evaluate('(cell) => getComputedStyle(cell).backgroundColor') in by_room[header.inner_text()]
+
     # Native middle-click must open a separate detail page without changing the schedule.
     title = page.locator('a.talk-title').first
     title_text = title.inner_text()

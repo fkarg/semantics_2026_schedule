@@ -49,20 +49,27 @@ main.programme { padding: 0 12px; }
 .timetable th, .timetable td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .timetable tr > :last-child { border-right: 0; }
 .timetable tbody tr:last-child > * { border-bottom: 0; }
-.timetable thead th { position: sticky; top: 0; z-index: 4; padding: 10px 7px; background: #274758; color: #fff; font-size: 12px; font-weight: 600; text-align: center; box-shadow: 0 1px 0 #163748; }
+.timetable thead th { position: sticky; top: 0; z-index: 4; padding: 10px 7px; background: var(--room-colour, #274758); color: var(--room-text, #fff); font-size: 12px; font-weight: 600; text-align: center; box-shadow: inset 0 -3px var(--room-accent, #163748); }
 .timetable .time-cell { width: 82px; position: sticky; left: 0; z-index: 3; background: #e4ebef; color: #244252; vertical-align: top; text-align: center; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 650; padding: 10px 4px; box-shadow: 1px 0 0 #aabac4; }
 .timetable thead .time-cell { top: 0; z-index: 6; background: #203746; color: white; font-size: 10px; }
 .time-cell span { display: block; font-size: 9px; font-weight: 400; margin: 0; line-height: 1.1; }
 .time-label { position: sticky; top: 45px; }
 .empty-cell { background: #edf1f3; }
-.event-cell { padding: 0; vertical-align: top; background: #f2f7fa; }
-.event-cell.keynote, .event-cell.invited_talk { background: #fff1d9; }
-.event-cell.workshop { background: #eaf4e8; }
-.event-cell.tutorial { background: #f9eee0; }
-.event-cell.dbpedia { background: #f0eafa; }
-.event-cell.industry { background: #fbeedc; }
-.event-cell.shared { background: #f9fafb; }
+/* Key colours by room name: positions and session types vary across days. */
+.timetable [data-room]:not([data-room=""]) { --room-text: #203039; }
+.timetable [data-room="Concertzaal"] { --room-colour: #e2effc; --room-accent: #3674a3; }
+.timetable [data-room="Kraakhuis"] { --room-colour: #efe5fa; --room-accent: #7951a3; }
+.timetable [data-room="Kabinet"] { --room-colour: #ffead7; --room-accent: #a96426; }
+.timetable [data-room="Anatomisch Theater"] { --room-colour: #dcf3ee; --room-accent: #287d6d; }
+.timetable [data-room="Suite +1"] { --room-colour: #fae1ec; --room-accent: #a74d77; }
+.timetable [data-room="Meeting Room"] { --room-colour: #fff3cb; --room-accent: #957720; }
+.timetable [data-room="Baudelo"] { --room-colour: #e9f0d9; --room-accent: #65803c; }
+.event-cell { padding: 0; vertical-align: top; background: var(--room-colour, #f9fafb); }
 .event-cell.filtered-empty { background: #edf1f3; }
+.empty-slot > td { height: 22px; background: #edf1f3; }
+.empty-slot .time-cell { padding: 3px 2px; }
+.empty-slot .time-label { position: static; font-size: 9px; white-space: nowrap; }
+.empty-slot .time-label span { display: inline; margin: 0 2px; }
 .session { padding: 9px 10px; scroll-margin-top: 44px; overflow-wrap: anywhere; }
 .session:target { outline: 2px solid #2678ad; outline-offset: -2px; }
 .card-kicker { font-size: 9px; text-transform: uppercase; color: #556b79; letter-spacing: .025em; margin: 0 0 4px; }

@@ -61,11 +61,21 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     compact_context = browser.new_context(offline=True, viewport={'width': 1440, 'height': 1000})
     compact = compact_context.new_page()
     compact.goto(URL + '?day=2026-09-15')
+    room_colours = compact.locator('.day:visible thead th:not(.time-cell)').evaluate_all(
+        'cells => Object.fromEntries(cells.map(cell => [cell.textContent, getComputedStyle(cell).backgroundColor]))')
     # Distinct rooms and times leave a gap where an unselected industry event sat.
     for session_id in ['2026-09-15-c6', '2026-09-15-d10', '2026-09-15-b7']:
         compact.locator(f'[id="{session_id}"] .favourite').click()
     compact.locator('#selected-only').check()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Kraakhuis', 'Kabinet'])
+    # Preserve all published intervals, including gaps between selected events.
+    expect(compact.locator('.day:visible tbody tr:visible')).to_have_count(12)
+    gap = compact.locator('[id="2026-09-15-b8"]').locator('xpath=ancestor::tr')
+    expect(gap).to_be_visible()
+    expect(gap.locator('.time-label')).to_have_text('12:40–14:10')
+    assert gap.bounding_box()['height'] <= 30
+    for header in compact.locator('.day:visible thead th:not(.time-cell):visible').all():
+        assert header.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == room_colours[header.inner_text()]
     empty = compact.locator('[id="2026-09-15-d6"]').locator('xpath=ancestor::td')
     expect(empty).to_be_visible()
     assert empty.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == 'rgb(237, 241, 243)'
@@ -76,12 +86,20 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     for session_id in ['2026-09-15-c6', '2026-09-15-d10']:
         compact.locator(f'[id="{session_id}"] .favourite').click()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Shared events'])
+    shared_header = compact.locator('.day:visible thead th:not(.time-cell):visible')
+    assert shared_header.evaluate('(cell) => getComputedStyle(cell).backgroundColor') not in room_colours.values()
     expect(lunch).to_have_attribute('colspan', '1')
     expect(compact.locator('[id="2026-09-15-b7"]')).to_be_visible()
+    expect(compact.locator('.day:visible tbody tr:visible')).to_have_count(12)
+    assert gap.bounding_box()['height'] <= 30
+    for row in compact.locator('.day:visible tbody tr').all():
+        expect(row.locator('td:visible')).to_have_count(1)
     compact.locator('#selected-only').uncheck()
     expect(compact.locator('.day:visible thead th:visible')).to_have_text(
         ['Time · CEST', 'Concertzaal', 'Kraakhuis', 'Kabinet', 'Anatomisch Theater', 'Suite +1', 'Meeting Room', 'Baudelo'])
     expect(lunch).to_have_attribute('colspan', '7')
+    for header in compact.locator('.day:visible thead th:not(.time-cell)').all():
+        assert header.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == room_colours[header.inner_text()]
     assert empty.evaluate('(cell) => getComputedStyle(cell).backgroundColor') != 'rgb(237, 241, 243)'
     # Partial shared spans must not disappear when disjoint from selected rooms.
     compact.goto(URL + '?day=2026-09-16')

@@ -283,7 +283,7 @@ def build_site(sessions, destination, stamp):
         day_sessions = [s for s in sessions if s['day'] == day]
         day_rooms = day_sessions[0]['room_order']
         body += f'<div class="timetable-wrap" tabindex="0" role="region" aria-label="{weekday} timetable, scroll for more rooms and times"><table class="timetable" style="--room-count:{len(day_rooms)}"><thead><tr><th scope="col" class="time-cell">Time · CEST</th>'
-        body += ''.join('<th scope="col">'+escape(room)+'</th>' for room in day_rooms)
+        body += ''.join('<th scope="col" data-room="'+escape(room, quote=True)+'">'+escape(room)+'</th>' for room in day_rooms)
         body += '</tr></thead><tbody>'
         times = list(dict.fromkeys(s['time'] for s in day_sessions))
         for time in times:
@@ -297,14 +297,13 @@ def build_site(sessions, destination, stamp):
                     col += 1
                     continue
                 meaningful = bool(session['groups']) and not set(session['groups']) & {'arrival', 'break', 'extra'}
-                kind = next((k for k in ('keynote', 'invited_talk', 'workshop', 'tutorial', 'dbpedia', 'industry') if k in session['groups']), 'conference')
                 search = ' '.join([session['title'], session['label'], session['chair'], session['room'], *session['groups'], *session['notes'], BeautifulSoup(session['description'], 'html.parser').get_text(' ')] + [' '.join([t['title'], t['speaker'], t['abstract'], t['track']]) for t in session['talks']])
                 search = ' '.join(search.split())
                 # Source content, not spreadsheet coordinates: row insertion must not
                 # silently move a favourite to a different session.
                 identity = [session['day'], session['time'], session['room'], session['source'] or session['title']]
                 favourite_id = hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:16]
-                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell {kind}{" shared" if not meaningful else ""}"><article id="{session["id"]}" class="session {kind}{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2><button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button></div>'
+                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell" data-room="{escape(session["room"], quote=True)}"><article id="{session["id"]}" class="session{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2><button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button></div>'
                 if session['chair']:
                     body += '<p class="chair">Chair: '+escape(session['chair'])+'</p>'
                 for talk in session['talks']:

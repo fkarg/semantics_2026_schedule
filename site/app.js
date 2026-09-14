@@ -77,8 +77,11 @@ if (search) {
       element.hidden = !visible;
       count += Number(visible);
     }
-    for (const group of document.querySelectorAll('.time-group, .day')) {
-      group.hidden = !group.querySelector('.session:not([hidden])');
+    for (const row of document.querySelectorAll('.time-group')) {
+      row.classList.toggle('empty-slot', !row.querySelector('.session:not([hidden])'));
+    }
+    for (const day of document.querySelectorAll('.day')) {
+      day.hidden = !day.querySelector('.session:not([hidden])');
     }
     for (const {table, headers, cells} of tables) {
       const active = cells.filter(({session}) => session && !session.hidden);
@@ -95,9 +98,11 @@ if (search) {
       headers.forEach(({cell, title}, column) => {
         cell.hidden = sharedOnly ? column !== 0 : !columns.has(column);
         cell.textContent = sharedOnly && column === 0 ? 'Shared events' : title;
+        cell.dataset.room = sharedOnly ? '' : title;
       });
       for (const {cell, column, span, session} of cells) {
-        const visibleSpan = sharedOnly ? Number(Boolean(session && !session.hidden)) :
+        const emptySharedSlot = cell.parentElement.classList.contains('empty-slot') && cell.cellIndex === 1;
+        const visibleSpan = sharedOnly ? Number(Boolean(session && !session.hidden) || emptySharedSlot) :
           [...columns].filter(index => index >= column && index < column + span).length;
         cell.hidden = visibleSpan === 0;
         cell.colSpan = Math.max(1, visibleSpan);
