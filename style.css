@@ -67,6 +67,16 @@ main.programme { padding: 0 12px; }
 .card-kicker { font-size: 9px; text-transform: uppercase; color: #556b79; letter-spacing: .025em; margin: 0 0 4px; }
 .session-title { font-size: 13px; font-weight: 700; line-height: 1.3; margin: 0 0 4px; }
 .session-title a { text-decoration: none; }
+.session-heading { display: flex; gap: 5px; align-items: flex-start; }
+.session-heading .session-title { flex: 1; }
+.favourite { flex: none; border: 0; background: transparent; color: #637c8a; font-size: 20px; line-height: 20px; padding: 0 2px; cursor: pointer; }
+.favourite:hover { color: #966000; }
+.favourite[aria-pressed=true] { color: #936000; }
+.favourited { box-shadow: inset 3px 0 #c99a31; }
+.filter-row .selected-filter { display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 11px; }
+.filter-row .selected-filter input { width: 14px; height: 14px; margin: 0; accent-color: #245575; }
+#selected-count { color: var(--muted); }
+#storage-notice { font-size: 12px; padding: 9px; background: #fff1d9; border-left: 3px solid #b9924e; }
 .chair { font-size: 10px; color: var(--muted); line-height: 1.35; margin: 0 0 6px; }
 .talk { margin-top: 8px; padding-top: 7px; border-top: 1px solid #c6d2db; }
 .talk h3 { font-size: 12px; font-weight: 650; line-height: 1.35; margin: 0 0 3px; }
@@ -117,7 +127,7 @@ footer { font-size: 10px; line-height: 1.6; color: var(--muted); padding: 5px 14
   main.programme { padding: 0 6px; }
   .toolbar { gap: 5px; }
   .days { width: 100%; }
-  .filter-row { width: 100%; }
+  .filter-row { width: 100%; flex-wrap: wrap; }
   .search-label { flex: 1; min-width: 0; }
   .filter-row input { width: 100%; }
   .filter-row select { width: 115px; }
@@ -130,6 +140,10 @@ footer { font-size: 10px; line-height: 1.6; color: var(--muted); padding: 5px 14
   .timetable .time-cell { width: 68px; }
   .detail-page { padding: 20px 16px; }
   .detail-page h1 { font-size: 26px; }
+}
+@media (max-width: 600px) {
+  .search-label { flex-basis: 100%; }
+  .timetable-wrap { max-height: calc(100dvh - 194px); }
 }
 @media print {
   .toolbar, .original, .day-heading p { display: none; }

@@ -20,6 +20,19 @@ The first day opens by default; day links and an all-days view are available.
 Search includes titles, speakers, abstracts and workshop descriptions. Day links
 retain your search and room filter. Shared events remain visible for every room.
 
+Click **☆** beside a session heading to favourite the whole session, including its
+talks. **Selected only** shows favourites within the current day/search/room filters;
+choose **All days** to see selections across the conference. Uncheck it to browse
+everything again. Stars are saved in this browser and sync between programme tabs.
+The star controls live on the timetable, not the separate detail pages.
+
+Saving was verified in Chrome with the directly opened local file, including a
+browser restart. Other browsers handle storage for `file:` URLs differently
+([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)). Keep
+using the same browser and file location; clearing browser data clears favourites.
+If saving is blocked, the page says so and keeps selections for the open page only.
+Changing a session's time or room during refresh creates a new selection identity.
+
 The copy uses the official programme workbook for session times and rooms, and
 the official linked documents for abstracts. Older times in those documents are
 flagged on detail pages. Individual talk times are not supplied by the timetable;
@@ -51,6 +64,7 @@ in each page's footer.
 # Optional browser workflow test (Playwright is already installed locally):
 uv pip install --python .venv/bin/python playwright
 .venv/bin/python test_browser.py
+.venv/bin/python test_favourites.py
 ```
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local

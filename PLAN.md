@@ -33,3 +33,23 @@ The web-enabled research agent supplied official 39C3 Fahrplan and C3VOC sources
 its input changed the layout to a session-interval table. This preserves truthful
 timing while allowing inline abstracts to expand rows, rather than pretending to
 have precise individual talk times or a proportional time scale.
+
+## Browser favourites
+
+Baseline saved as Git commit 01823b6 before this feature. Add a star toggle to
+each programme session heading, selecting the whole session block. Keep controls
+on the overview so file:// storage need not be shared with separate detail files.
+Store one localStorage key per session to avoid losing unrelated selections from
+another tab; reread on storage events and focus. If storage fails, retain the
+current page's selections and explicitly report that they cannot be saved.
+
+- [x] Add browser workflow coverage for save/reload/day links, selected-only,
+      multiple tabs and failed storage.
+- [x] Add session star buttons, selected-only filter, persistence and styles.
+- [x] Rebuild, run data and browser checks, review the diff and commit.
+
+Internal GPT-6 Astra review found no blocking defect after checking key uniqueness,
+row-independent identities, cross-tab writes, storage failures, table structure and
+navigation. Outcome: added verification, making its coordinate-change check an
+automated regression test. External guidance confirmed file:// storage is browser
+dependent; real Chrome workflow checks cover reload, restart and cross-tab use.

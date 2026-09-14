@@ -1,6 +1,7 @@
 """Contract tests using the actual public programme snapshot."""
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
 from bs4 import BeautifulSoup
 import build
@@ -77,6 +78,22 @@ class ProgrammeTests(unittest.TestCase):
             self.assertEqual(buildings.find_parent('td')['data-column'], '2')
             coffee = day.find(id='2026-09-16-b5')
             self.assertEqual(coffee.find_parent('td')['colspan'], '4')
+
+    def test_favourites_identify_sessions_without_using_spreadsheet_row_numbers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            site = Path(directory)
+            build.build_site(self.sessions, site, 'test')
+            original = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
+            keys = [b['data-favourite-id'] for b in original.select('.favourite')]
+            self.assertEqual(len(keys), len(set(keys)))
+            self.assertEqual(len(keys), len(self.sessions))
+            # A row inserted above the programme must not move stars to other events.
+            moved = deepcopy(self.sessions)
+            for session in moved:
+                session['id'] += '-new-row'
+            build.build_site(moved, site, 'test')
+            updated = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
+            self.assertEqual([b['data-favourite-id'] for b in updated.select('.favourite')], keys)
 
     def test_all_generated_local_links_resolve_and_abstracts_are_disclosures(self):
         with tempfile.TemporaryDirectory() as directory:

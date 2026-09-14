@@ -277,7 +277,7 @@ def build_site(sessions, destination, stamp):
     body += '<a href="index.html?day=all" data-day="">All days</a></nav>'
     body += '<div class="filter-row"><label class="search-label"><span class="sr-only">Search programme</span><input id="search" type="search" placeholder="Search talks, speakers, topics…" autocomplete="off"></label><label><span class="sr-only">Room</span><select id="room"><option value="">All rooms</option>'
     body += ''.join(f'<option>{escape(room)}</option>' for room in rooms)
-    body += '</select></label><button id="clear" type="button">Clear</button><p id="result-count" role="status" aria-live="polite"></p></div></section><noscript><p>All days are shown. Browser Find works without JavaScript.</p></noscript><p id="empty" hidden>No matching sessions. Try another search or clear the filters.</p>'
+    body += '</select></label><label class="selected-filter" hidden><input id="selected-only" type="checkbox">Selected only <span id="selected-count"></span></label><button id="clear" type="button">Clear</button><p id="result-count" role="status" aria-live="polite"></p></div></section><p id="storage-notice" role="status" hidden>This browser cannot save favourites. Your selections will last only while this page stays open.</p><noscript><p>All days are shown. Browser Find works without JavaScript.</p></noscript><p id="empty" hidden>No matching sessions. Try another search or clear the filters.</p>'
     for day, (weekday, date, label) in DAYS.items():
         body += f'<section class="day" data-day="{day}"><header class="day-heading"><h1>{weekday}, {date} <span>· {label}</span></h1><p>CEST · Titles open as normal links · Expand abstracts in place</p></header>'
         day_sessions = [s for s in sessions if s['day'] == day]
@@ -299,7 +299,12 @@ def build_site(sessions, destination, stamp):
                 meaningful = bool(session['groups']) and not set(session['groups']) & {'arrival', 'break', 'extra'}
                 kind = next((k for k in ('keynote', 'invited_talk', 'workshop', 'tutorial', 'dbpedia', 'industry') if k in session['groups']), 'conference')
                 search = ' '.join([session['title'], session['label'], session['chair'], session['room'], *session['groups'], *session['notes'], BeautifulSoup(session['description'], 'html.parser').get_text(' ')] + [' '.join([t['title'], t['speaker'], t['abstract'], t['track']]) for t in session['talks']])
-                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell {kind}{" shared" if not meaningful else ""}"><article id="{session["id"]}" class="session {kind}{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2>'
+                search = ' '.join(search.split())
+                # Source content, not spreadsheet coordinates: row insertion must not
+                # silently move a favourite to a different session.
+                identity = [session['day'], session['time'], session['room'], session['source'] or session['title']]
+                favourite_id = hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:16]
+                body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell {kind}{" shared" if not meaningful else ""}"><article id="{session["id"]}" class="session {kind}{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2><button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button></div>'
                 if session['chair']:
                     body += '<p class="chair">Chair: '+escape(session['chair'])+'</p>'
                 for talk in session['talks']:
