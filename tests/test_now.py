@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
-URL = (Path(__file__).resolve().parent / 'site/index.html').as_uri() + '?day=all'
+URL = (Path(__file__).resolve().parents[1] / 'site/index.html').as_uri() + '?day=all'
 
 def set_time(page, instant):
     page.clock.set_system_time(datetime.fromisoformat(instant))

@@ -6,7 +6,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 import build
 
-SOURCES = Path(__file__).parent / 'sources'
+SOURCES = Path(__file__).resolve().parents[1] / 'sources'
 
 
 class ProgrammeTests(unittest.TestCase):

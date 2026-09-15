@@ -5,7 +5,7 @@ from pathlib import Path
 from threading import Thread
 from playwright.sync_api import sync_playwright, expect
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 server = ThreadingHTTPServer(('127.0.0.1', 0), partial(SimpleHTTPRequestHandler, directory=str(ROOT)))
 Thread(target=server.serve_forever, daemon=True).start()
 URL = f'http://127.0.0.1:{server.server_port}/site/index.html'

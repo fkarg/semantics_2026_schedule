@@ -98,15 +98,17 @@ in each page's footer.
 
 ## Check
 
+Tests live in `tests/`. Run these commands from the repository root:
+
 ```sh
-.venv/bin/python -m unittest -v test_programme.py
+.venv/bin/python -m unittest -v tests.test_programme
 # Optional browser workflow test (Playwright is already installed locally):
 uv pip install --python .venv/bin/python playwright
-.venv/bin/python test_browser.py
-.venv/bin/python test_favourites.py
-.venv/bin/python test_mobile.py
-.venv/bin/python test_now.py
-.venv/bin/python test_calendar.py
+.venv/bin/python -m tests.test_browser
+.venv/bin/python -m tests.test_favourites
+.venv/bin/python -m tests.test_mobile
+.venv/bin/python -m tests.test_now
+.venv/bin/python -m tests.test_calendar
 ```
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local

@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from playwright.sync_api import sync_playwright, expect
 from build import build_site
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 SESSIONS = json.loads((ROOT / 'site/programme.json').read_text())
 IDS = ['2026-09-15-c6', '2026-09-16-b6', '2026-09-17-c7']
 HOST = 'https://www.fkarg.me/semantics_2026_schedule/'

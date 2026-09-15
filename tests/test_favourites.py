@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from playwright.sync_api import sync_playwright, expect
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 URL = (ROOT / 'site/index.html').as_uri()
 ALL = URL + '?day=all'
 FIRST = '[id="2026-09-16-b6"]'
