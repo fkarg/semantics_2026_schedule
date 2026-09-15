@@ -70,6 +70,18 @@ main.programme { padding: 0 12px; }
 .empty-slot .time-cell { padding: 3px 2px; }
 .empty-slot .time-label { position: static; font-size: 9px; white-space: nowrap; }
 .empty-slot .time-label span { display: inline; margin: 0 2px; }
+/* Draw per cell so the line also follows the horizontally sticky time column. */
+.time-group.is-now > td { position: relative; }
+.time-group.is-now > :is(th, td)::after {
+  content: ''; position: absolute; top: var(--now-position); left: 0; right: 0;
+  height: 2px; background: #c62828; z-index: 2; pointer-events: none;
+}
+.now-label {
+  position: absolute; top: var(--now-position); left: 100%; z-index: 3;
+  transform: translateY(-100%); width: max-content; padding: 2px 5px;
+  background: #c62828; color: white; font-size: 10px; line-height: 14px;
+  font-weight: 650; white-space: nowrap; pointer-events: none;
+}
 .session { padding: 9px 10px; scroll-margin-top: 44px; overflow-wrap: anywhere; }
 .session:target { outline: 2px solid #2678ad; outline-offset: -2px; }
 .card-kicker { font-size: 9px; text-transform: uppercase; color: #556b79; letter-spacing: .025em; margin: 0 0 4px; }

@@ -32,6 +32,43 @@ if (search) {
     }
     return {table, headers, cells};
   });
+  const clockFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Brussels', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+  });
+  const timeRows = [...document.querySelectorAll('.time-group')].map(row => {
+    const [start, end] = row.dataset.time.split('–').map(value => {
+      if (!value.trim()) return null;
+      const [hour, minute] = value.trim().split(':').map(Number);
+      return hour * 60 + minute;
+    });
+    const label = document.createElement('div');
+    label.className = 'now-label';
+    label.hidden = true;
+    row.querySelector('.time-cell').append(label);
+    return {row, label, start, end, day: row.closest('.day').dataset.day};
+  });
+  function updateNow() {
+    const parts = Object.fromEntries(clockFormat.formatToParts(new Date()).map(part => [part.type, part.value]));
+    const today = `${parts.year}-${parts.month}-${parts.day}`;
+    const minute = Number(parts.hour) * 60 + Number(parts.minute) + Number(parts.second) / 60;
+    for (const {row, label, start, end, day} of timeRows) {
+      const current = day === today && minute >= start && (end === null || minute < end);
+      row.classList.toggle('is-now', current);
+      label.hidden = !current;
+      if (current) {
+        // Content determines row height; elapsed time determines position within it.
+        const progress = end === null ? 0 : (minute - start) / (end - start);
+        row.style.setProperty('--now-position', `${progress * 100}%`);
+        label.textContent = `Now ${parts.hour}:${parts.minute}`;
+      }
+    }
+  }
+  updateNow();
+  setInterval(updateNow, 15000);
+  window.addEventListener('focus', updateNow);
+  window.addEventListener('pageshow', updateNow);
+  document.addEventListener('visibilitychange', updateNow);
   function readSelection() {
     if (canSave) {
       try {

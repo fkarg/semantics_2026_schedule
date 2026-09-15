@@ -23,6 +23,10 @@ On phones, swipe the table horizontally to compare rooms. Text and tap targets
 are larger; room/time headers stay pinned. Choose a room to collapse the other
 columns. Shared breaks remain readable as you swipe, and detail pages pin their
 time and location while you read.
+A red **Now HH:MM** line tracks Ghent time within today's current slot and updates
+every 15 seconds. It follows row height changes without moving your scroll position.
+Outside published intervals it is hidden; the open-ended dinner is marked at its
+start rather than given an invented duration.
 The first day opens by default; day links and an all-days view are available.
 Search includes titles, speakers, abstracts and workshop descriptions. Day links
 retain your search and room filter. Shared events remain visible for every room.
@@ -88,6 +92,7 @@ uv pip install --python .venv/bin/python playwright
 .venv/bin/python test_browser.py
 .venv/bin/python test_favourites.py
 .venv/bin/python test_mobile.py
+.venv/bin/python test_now.py
 ```
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local

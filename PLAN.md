@@ -103,3 +103,21 @@ Published at https://www.fkarg.me/semantics_2026_schedule/ (the github.io projec
 URL redirects to the existing account domain). HTTPS enforced. Deployment run
 34945979199 passed. A fresh phone-sized Chrome profile verified the live redirect,
 exact CSS snapshot, favourites/reload, shared lunch, and nested talk detail URL.
+
+## Live current-time marker
+
+Use Europe/Brussels time and update every 15 seconds plus focus/page visibility.
+Match today's published interval (inclusive start, exclusive end), position a red
+line proportionally within that rendered row and show Now HH:MM in the time axis.
+CSS percentages keep geometry correct through filtering, resize and disclosures.
+No autoscroll. Outside programme intervals/dates hide the marker. For the dinner
+without a published end, hold the marker at the row start until the day ends.
+Verify using a controlled browser clock in a different device timezone, including
+slot transitions, compact rows, expanded abstracts, date changes and live ticks.
+
+Internal GPT-6 Astra review found no blocking issue after checking filtering,
+expanded heights, sticky layering, interval boundaries and dinner/midnight.
+Outcome: added verification of red pseudo-elements and a horizontally scrolled
+mobile marker inside the viewport. Clock-controlled tests and all existing unit,
+favourites, phone and browser workflows passed. Publish via the existing Pages
+workflow and verify its result.

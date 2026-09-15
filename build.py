@@ -287,7 +287,7 @@ def build_site(sessions, destination, stamp):
         body += '</tr></thead><tbody>'
         times = list(dict.fromkeys(s['time'] for s in day_sessions))
         for time in times:
-            body += '<tr class="time-group"><th scope="row" class="time-cell"><div class="time-label">'+escape(time).replace(' – ', '<span>–</span>')+'</div></th>'
+            body += '<tr class="time-group" data-time="'+escape(time, quote=True)+'"><th scope="row" class="time-cell"><div class="time-label">'+escape(time).replace(' – ', '<span>–</span>')+'</div></th>'
             row_sessions = {s['column']: s for s in day_sessions if s['time'] == time}
             col = 0
             while col < len(day_rooms):
