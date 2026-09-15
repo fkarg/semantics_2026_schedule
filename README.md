@@ -1,6 +1,6 @@
 # SEMANTiCS 2026, locally
 
-Online: **https://fkarg.github.io/semantics_2026_schedule/**
+Online: **https://www.fkarg.me/semantics_2026_schedule/**
 
 Or open **[site/index.html](site/index.html)** in your browser. No server, installation,
 or internet connection is needed to browse the saved programme and abstracts.

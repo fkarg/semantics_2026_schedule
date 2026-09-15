@@ -87,7 +87,7 @@ No accounts/backend or cross-device favourite syncing are introduced.
 - [x] Add mobile workflow coverage at 320/390px for touch controls, readable shared
       rows after horizontal scrolling, room filtering, details, selection/reload.
 - [x] Update CSS and room-filter layout, rebuild and run existing/browser checks.
-- [ ] Add the official Pages workflow, inspect the user-created origin and Pages
+- [x] Add the official Pages workflow, inspect the user-created origin and Pages
       settings, push, follow Actions, and verify the live nested detail URLs.
 
 Official GitHub guidance confirmed the static artifact workflow action versions;
@@ -98,3 +98,8 @@ Internal GPT-6 review checked sticky geometry, partial spans/restoration, nested
 Pages links and workflow permissions. No defect; outcome: no decision impact.
 Chrome emulation passed at 320/390px, including HTTP subpaths and favourites.
 Safari/WebKit remains unverified. Desktop/offline workflows and 11 unit tests pass.
+
+Published at https://www.fkarg.me/semantics_2026_schedule/ (the github.io project
+URL redirects to the existing account domain). HTTPS enforced. Deployment run
+34945979199 passed. A fresh phone-sized Chrome profile verified the live redirect,
+exact CSS snapshot, favourites/reload, shared lunch, and nested talk detail URL.
