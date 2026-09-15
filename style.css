@@ -150,8 +150,39 @@ footer { font-size: 10px; line-height: 1.6; color: var(--muted); padding: 5px 14
   .detail-page h1 { font-size: 26px; }
 }
 @media (max-width: 600px) {
+  .masthead { padding: 0 10px; gap: 8px; }
+  .brand { font-size: 18px; }
+  .original { font-size: 10px; }
+  .toolbar { gap: 8px; }
+  .days { justify-content: space-between; }
+  .days a { min-height: 44px; display: flex; align-items: center; padding: 6px 10px; font-size: 13px; }
   .search-label { flex-basis: 100%; }
-  .timetable-wrap { max-height: calc(100dvh - 194px); }
+  .filter-row { gap: 6px; }
+  .filter-row input, .filter-row select { height: 44px; font-size: 16px; }
+  .filter-row select { width: 132px; }
+  .filter-row .selected-filter { min-height: 44px; font-size: 13px; gap: 6px; }
+  .filter-row .selected-filter input { width: 20px; height: 20px; }
+  .filter-row button { min-width: 44px; min-height: 44px; font-size: 13px; }
+  .day-heading h1 { font-size: 14px; }
+  .timetable-wrap { max-height: max(260px, calc(100svh - 245px)); scrollbar-gutter: auto; }
+  .timetable { --room-width: min(320px, calc(100vw - 92px)); min-width: calc(68px + var(--room-count) * var(--room-width)); font-size: 14px; }
+  .timetable thead th { height: 44px; font-size: 13px; }
+  .time-label { top: 49px; }
+  .session { padding: 10px; scroll-margin-top: 50px; }
+  .session-title { font-size: 16px; }
+  .card-kicker { font-size: 11px; }
+  .chair, .speaker, .programme .notes { font-size: 12px; }
+  .talk h3 { font-size: 14px; line-height: 1.45; }
+  .favourite { min-width: 44px; min-height: 44px; font-size: 26px; }
+  summary { min-height: 44px; padding: 12px 0; font-size: 14px; }
+  details .abstract, details .description { font-size: 14px; max-height: none; overflow: visible; }
+  .read-link { padding: 12px 0; font-size: 14px; }
+  /* Shared cells can span several screens; keep their content beside the time axis. */
+  .event-cell[data-room=""] .session { position: sticky; left: 68px; width: min(100%, calc(100vw - 82px)); }
+  .compact .session-title { font-size: 14px; }
+  .compact .notes { font-size: 12px; }
+  .detail-page .breadcrumbs a { padding: 10px 0; }
+  .detail-page .detail-meta { position: sticky; top: 0; z-index: 1; }
 }
 @media print {
   .toolbar, .original, .day-heading p { display: none; }

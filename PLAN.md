@@ -74,3 +74,27 @@ Internal GPT-6 Astra read-only review traced nullable star access, selection cou
 filter predicates, all 19 shared entries/partial spans, and layout restoration.
 No defects found; outcome: no decision impact. All 11 unit tests and both Chrome
 workflows passed, including an actual formerly selectable lunch storage key.
+
+## Phone layout and GitHub Pages
+
+Keep the existing static timetable and native links. On phone widths, enlarge
+text and touch targets, show roughly one readable room plus the sticky time axis,
+and keep shared-row text within the viewport. Room filtering should collapse
+unrelated columns using the existing span-preservation logic. Keep desktop density.
+Publish the committed site/ artifact through GitHub Pages Actions on main pushes.
+No accounts/backend or cross-device favourite syncing are introduced.
+
+- [x] Add mobile workflow coverage at 320/390px for touch controls, readable shared
+      rows after horizontal scrolling, room filtering, details, selection/reload.
+- [x] Update CSS and room-filter layout, rebuild and run existing/browser checks.
+- [ ] Add the official Pages workflow, inspect the user-created origin and Pages
+      settings, push, follow Actions, and verify the live nested detail URLs.
+
+Official GitHub guidance confirmed the static artifact workflow action versions;
+W3C reflow guidance supports keeping the timetable inside its own scroll area.
+Mobile viewport sizing uses svh per WebKit guidance, and shared content sticks
+beside the time axis. Research outcome: informed viewport sizing and deployment.
+Internal GPT-6 review checked sticky geometry, partial spans/restoration, nested
+Pages links and workflow permissions. No defect; outcome: no decision impact.
+Chrome emulation passed at 320/390px, including HTTP subpaths and favourites.
+Safari/WebKit remains unverified. Desktop/offline workflows and 11 unit tests pass.

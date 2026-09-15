@@ -91,8 +91,9 @@ if (search) {
     for (const {table, headers, cells} of tables) {
       const active = cells.filter(({session}) => session && !session.hidden);
       const columns = new Set(active.filter(({session}) => session.dataset.room).map(({column}) => column));
-      const sharedOnly = selectedOnly.checked && active.length > 0 && columns.size === 0;
-      if (!selectedOnly.checked) headers.forEach((_, column) => columns.add(column));
+      const compactRooms = selectedOnly.checked || Boolean(room.value);
+      const sharedOnly = compactRooms && active.length > 0 && columns.size === 0;
+      if (!compactRooms) headers.forEach((_, column) => columns.add(column));
       else if (!sharedOnly) {
         // A shared event must retain a cell even when none of its
         // original columns contain a selected room-specific session.

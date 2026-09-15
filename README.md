@@ -1,6 +1,8 @@
 # SEMANTiCS 2026, locally
 
-Open **[site/index.html](site/index.html)** in your browser. No server, installation,
+Online: **https://fkarg.github.io/semantics_2026_schedule/**
+
+Or open **[site/index.html](site/index.html)** in your browser. No server, installation,
 or internet connection is needed to browse the saved programme and abstracts.
 
 On this Mac:
@@ -17,7 +19,10 @@ Each room has one distinct colour, shared by its header and session cells across
 all days and filtered views. Shared events and empty cells remain neutral.
 Room headers stay pinned when scrolling down; the time column stays pinned when
 scrolling right. Within a long session, its time range also sticks below the header.
-Smaller screens scroll the table horizontally instead of stacking rooms into cards.
+On phones, swipe the table horizontally to compare rooms. Text and tap targets
+are larger; room/time headers stay pinned. Choose a room to collapse the other
+columns. Shared breaks remain readable as you swipe, and detail pages pin their
+time and location while you read.
 The first day opens by default; day links and an all-days view are available.
 Search includes titles, speakers, abstracts and workshop descriptions. Day links
 retain your search and room filter. Shared events remain visible for every room.
@@ -32,6 +37,8 @@ preserving the day's timeline. Shared events span the remaining rooms; days
 with only shared events use one “Shared events” column. Switching back restores
 the full room layout. Stars are saved in this browser and sync between programme tabs.
 The star controls live on the timetable, not the separate detail pages.
+Favourites are local to each browser and website address: laptop/file selections
+do not automatically transfer to the hosted site or your phone.
 
 Saving was verified in Chrome with the directly opened local file, including a
 browser restart. Other browsers handle storage for `file:` URLs differently
@@ -47,6 +54,14 @@ the displayed time is the parent session's time. Unpublished abstracts are label
 Workshop pages include the supplied descriptions and external workshop links;
 independent workshop websites are not mirrored. External source and meeting links
 still require internet access.
+
+## Publish
+
+GitHub Pages serves only `site/` through `.github/workflows/pages.yml` on each
+push to `main`. Repository Settings → Pages uses **GitHub Actions** as its source.
+After changing source files, run `.venv/bin/python build.py`, then commit the
+updated source and generated site together. The workflow publishes that snapshot;
+it does not fetch changing conference sources during deployment.
 
 ## Refresh
 
@@ -72,6 +87,7 @@ in each page's footer.
 uv pip install --python .venv/bin/python playwright
 .venv/bin/python test_browser.py
 .venv/bin/python test_favourites.py
+.venv/bin/python test_mobile.py
 ```
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local
