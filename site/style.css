@@ -37,9 +37,13 @@ main.programme { padding: 0 12px; }
 .filter-row select { width: 144px; }
 .filter-row button { border: 0; background: transparent; font-size: 11px; color: var(--muted); cursor: pointer; padding: 5px; }
 #result-count { margin: 0; font-size: 10px; color: var(--muted); min-width: 100px; }
-.calendar-export { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 11px; color: var(--muted); }
+.calendar-export { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
 .calendar-export button { border: 1px solid var(--line); border-radius: 3px; background: white; padding: 6px 9px; color: var(--accent); cursor: pointer; }
 .calendar-export button:disabled { opacity: .5; cursor: default; }
+.calendar-export details { margin: 0; }
+.calendar-export details[open] { flex-basis: 100%; }
+.calendar-export summary { padding: 6px 4px; font-size: inherit; }
+.calendar-export p { margin: 0; max-width: 32em; line-height: 1.5; }
 #empty { text-align: center; margin: 45px 0; }
 .day { margin: 0 0 20px; }
 .day-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 1px 8px; }
@@ -179,6 +183,7 @@ footer { font-size: 10px; line-height: 1.6; color: var(--muted); padding: 5px 14
   .filter-row .selected-filter input { width: 20px; height: 20px; }
   .filter-row button { min-width: 44px; min-height: 44px; font-size: 13px; }
   .calendar-export button { min-height: 44px; font-size: 13px; }
+  .calendar-export summary { min-width: 44px; padding: 12px 4px; font-size: 13px; line-height: 20px; }
   .day-heading h1 { font-size: 14px; }
   .timetable-wrap { max-height: max(260px, calc(100svh - 245px)); scrollbar-gutter: auto; }
   .timetable { --room-width: min(320px, calc(100vw - 92px)); min-width: calc(68px + var(--room-count) * var(--room-width)); font-size: 14px; }

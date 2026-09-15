@@ -21,6 +21,19 @@ try:
             page.goto(URL)
             expect(page.locator('.session:visible')).to_have_count(31)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+            # Export help used to wrap into a permanent extra row on phones.
+            export_bar = page.locator('.calendar-export')
+            assert export_bar.bounding_box()['height'] <= 44
+            expect(page.locator('#export-hint')).not_to_be_visible()
+            export_info = export_bar.locator('summary')
+            assert export_info.bounding_box()['height'] >= 44
+            export_info.tap()
+            expect(page.locator('#export-hint')).to_be_visible()
+            expect(page.locator('#room')).to_be_visible()
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+            export_info.tap()
+            expect(page.locator('#export-hint')).not_to_be_visible()
+            assert export_bar.bounding_box()['height'] <= 44
             for selector in ('#search', '#room', '#clear', '#export-calendar', '.selected-filter', '.days a', '.favourite'):
                 target = page.locator(selector + ':visible').first
                 assert target.bounding_box()['height'] >= 44, selector

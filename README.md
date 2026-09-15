@@ -50,6 +50,7 @@ title, room, published start/end time, chair, description/notes, full available 
 abstracts and speakers, and links to session/talk pages and official sources. Shared
 breaks are excluded. Times are exported in UTC to preserve the correct Ghent time
 when imported from another timezone; individual talks retain their parent session.
+The export explanation expands under **Info**, keeping the toolbar compact on phones.
 
 In Google Calendar **on a computer**, open **Settings → Import & export**, choose
 the downloaded `.ics` file and destination calendar, then **Import**
