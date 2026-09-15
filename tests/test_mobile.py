@@ -19,6 +19,7 @@ try:
             errors = []
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(URL)
+            expect(page.locator('.session:visible')).to_have_count(31)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             for selector in ('#search', '#room', '#clear', '#export-calendar', '.selected-filter', '.days a', '.favourite'):
                 target = page.locator(selector + ':visible').first
@@ -33,6 +34,8 @@ try:
             bounds = wrapper.bounding_box()
             assert abs(corner['x'] - bounds['x'] - 1) < 2
             assert abs(corner['y'] - bounds['y'] - 1) < 2
+            room_header = page.locator('.day:visible thead th').nth(3).bounding_box()
+            assert abs(room_header['y'] - corner['y']) < 2
             page.locator('#room').select_option('Kraakhuis')
             expect(page.locator('.day:visible thead th:visible')).to_have_text(['Time · CEST', 'Kraakhuis'])
             assert wrapper.evaluate('(el) => el.scrollWidth <= el.clientWidth + 1')

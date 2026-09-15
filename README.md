@@ -98,18 +98,41 @@ in each page's footer.
 
 ## Check
 
-Tests live in `tests/`. Run these commands from the repository root:
+Tests live in `tests/`. The everyday check takes about a second; run from the
+repository root:
 
 ```sh
-.venv/bin/python -m unittest -v tests.test_programme
-# Optional browser workflow test (Playwright is already installed locally):
-uv pip install --python .venv/bin/python playwright
-.venv/bin/python -m tests.test_browser
-.venv/bin/python -m tests.test_favourites
-.venv/bin/python -m tests.test_mobile
-.venv/bin/python -m tests.test_now
-.venv/bin/python -m tests.test_calendar
+make programme
 ```
+
+For JavaScript edits, also run `node --check app.js`. Then run the browser workflow
+relevant to the change, rather than all five after every edit:
+
+```sh
+# Links, search, room colours and sticky session times
+make browser
+# Saved selections and filtered table geometry
+make favourites
+# Phone layout, sticky axes and touch interactions
+make mobile
+# Current-time marker
+make now
+# Calendar content and file format (phone downloads are covered above)
+make calendar
+```
+
+Run the complete suite with **`make -j2 test`**, or two relevant workflows with
+`make -j2 calendar mobile`. Two processes run concurrently, each with isolated
+browser storage and temporary fixtures. Failures make the command exit nonzero.
+The unit suite shares one generated baseline per run; nothing caches pass/fail
+results across edits. The full calendar-content workflow runs once; phone-specific
+checks cover both 320px and 390px separately.
+
+Browser workflows require Playwright (`uv pip install --python .venv/bin/python playwright`)
+and Chrome. Run the full set for broad application changes before publishing;
+docs and file moves do not need repeated browser runs once their affected paths
+have passed. Individual suites also work as `.venv/bin/python -m tests.test_calendar`
+(replace `calendar` with the suite name).
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local
 reading copy, not an official conference website.

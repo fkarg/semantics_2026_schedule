@@ -164,3 +164,26 @@ full-calendar size fixture, keeping UI selection/export checks; reuse the ordina
 browser across isolated favourites contexts, retaining both persistent-profile
 launches that test actual browser restart. Both suites pass after the change:
 calendar 3.71s and favourites 5.02s in the follow-up timed run. No assertions removed.
+
+Follow-up: remove repeated calendar-content workflows at phone widths (real touch
+exports remain in the phone suite), consolidate phone geometry there, retain the
+unique sticky long-session time check, and remove a redundant Wednesday navigation.
+Share the generated unit baseline and parsed index within each run, rebuilding
+every run and keeping the modified-ID fixture separate. The quick check is 0.72s.
+
+`make -j2 test` runs independent modules concurrently, longest first, with ordinary
+Make failure propagation and no new dependencies. All targets are phony; no test
+results are cached. Existing temporary paths, storage contexts and dynamic HTTP
+ports isolate suites. Full-suite timed runs passed at 12.60s with two workers and
+11.52s with three; document two for lower resource use, with concurrency adjustable.
+Use focused targets during edits instead of rerunning the full suite each time.
+
+GPT-6 Astra's read-only review identified duplicate coverage, verified isolation,
+and recommended per-run fixture sharing. Outcome: changed implementation and
+retained the room-header position assertion by moving it into the phone suite.
+External guidance ruled out simply adding xdist: existing workflows execute on
+import, and each xdist worker collects the full suite. Make parallel recipes fit
+the existing scripts without a test-framework conversion.
+Sources: https://pytest-xdist.readthedocs.io/en/stable/how-it-works.html,
+https://www.gnu.org/software/make/manual/html_node/Parallel.html,
+https://playwright.dev/python/docs/browser-contexts.

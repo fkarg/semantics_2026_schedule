@@ -132,9 +132,6 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     expect(page.locator('#empty')).to_be_visible()
     page.locator('#selected-only').uncheck()
     expect(page.locator('.session:visible')).to_have_count(66)
-    page.set_viewport_size({'width': 390, 'height': 844})
-    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-    page.screenshot(path='/tmp/semantics-favourites-mobile.png')
     context.close()
 
     context = browser.new_context(offline=True)

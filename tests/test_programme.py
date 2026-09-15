@@ -13,6 +13,11 @@ class ProgrammeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.sessions = build.load_programme(SOURCES)
+        fixture = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(fixture.cleanup)
+        cls.site = Path(fixture.name)
+        build.build_site(cls.sessions, cls.site, 'test')
+        cls.index = BeautifulSoup((cls.site / 'index.html').read_text(), 'html.parser')
 
     def test_timetable_is_authority_for_time_and_room(self):
         session = next(s for s in self.sessions if s['title'] == 'Querying Knowledge Graphs')
@@ -63,27 +68,22 @@ class ProgrammeTests(unittest.TestCase):
         self.assertEqual(event['title'], 'Posters and Demos Walk')
 
     def test_timetable_keeps_physical_rooms_and_shared_cell_spans(self):
-        with tempfile.TemporaryDirectory() as directory:
-            site = Path(directory)
-            build.build_site(self.sessions, site, '2026-09-14T20:00:00+00:00')
-            soup = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
-            day = soup.select_one('.day[data-day="2026-09-16"]')
-            self.assertEqual([h.get_text(' ', strip=True) for h in day.select('thead th[scope=col]')],
-                             ['Time · CEST', 'Concertzaal', 'Kraakhuis', 'Kabinet', 'Anatomisch Theater'])
-            keynote = day.find(id='2026-09-16-b4')
-            self.assertEqual(keynote.find_parent('td')['data-column'], '0')
-            querying = day.find(id='2026-09-16-b6')
-            buildings = day.find(id='2026-09-16-d6')
-            self.assertEqual(querying.find_parent('tr'), buildings.find_parent('tr'))
-            self.assertEqual(buildings.find_parent('td')['data-column'], '2')
-            coffee = day.find(id='2026-09-16-b5')
-            self.assertEqual(coffee.find_parent('td')['colspan'], '4')
+        day = self.index.select_one('.day[data-day="2026-09-16"]')
+        self.assertEqual([h.get_text(' ', strip=True) for h in day.select('thead th[scope=col]')],
+                         ['Time · CEST', 'Concertzaal', 'Kraakhuis', 'Kabinet', 'Anatomisch Theater'])
+        keynote = day.find(id='2026-09-16-b4')
+        self.assertEqual(keynote.find_parent('td')['data-column'], '0')
+        querying = day.find(id='2026-09-16-b6')
+        buildings = day.find(id='2026-09-16-d6')
+        self.assertEqual(querying.find_parent('tr'), buildings.find_parent('tr'))
+        self.assertEqual(buildings.find_parent('td')['data-column'], '2')
+        coffee = day.find(id='2026-09-16-b5')
+        self.assertEqual(coffee.find_parent('td')['colspan'], '4')
 
     def test_favourites_identify_sessions_without_using_spreadsheet_row_numbers(self):
         with tempfile.TemporaryDirectory() as directory:
             site = Path(directory)
-            build.build_site(self.sessions, site, 'test')
-            original = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
+            original = self.index
             keys = [b['data-favourite-id'] for b in original.select('.favourite')]
             self.assertEqual(len(keys), len(set(keys)))
             self.assertEqual(len(keys), sum(bool(s['room']) for s in self.sessions))
@@ -98,21 +98,17 @@ class ProgrammeTests(unittest.TestCase):
             self.assertEqual([b['data-favourite-id'] for b in updated.select('.favourite')], keys)
 
     def test_all_generated_local_links_resolve_and_abstracts_are_disclosures(self):
-        with tempfile.TemporaryDirectory() as directory:
-            site = Path(directory)
-            build.build_site(self.sessions, site, '2026-09-14T20:00:00+00:00')
-            for page in site.rglob('*.html'):
-                soup = BeautifulSoup(page.read_text(), 'html.parser')
-                self.assertFalse(soup.select('[onclick]'))
-                for a in soup.select('a[href]'):
-                    href = a['href'].split('#')[0].split('?')[0]
-                    if href and not href.startswith(('https:', 'http:', 'mailto:')):
-                        self.assertTrue((page.parent / href).is_file(), (page, href))
-            soup = BeautifulSoup((site / 'index.html').read_text(), 'html.parser')
-            self.assertTrue(soup.select('details summary'))
-            titles = soup.select('a.talk-title')
-            self.assertEqual(len(titles), sum(len(s['talks']) for s in self.sessions))
-            self.assertTrue(all(a['href'].startswith('talks/') for a in titles))
+        for page in self.site.rglob('*.html'):
+            soup = BeautifulSoup(page.read_text(), 'html.parser')
+            self.assertFalse(soup.select('[onclick]'))
+            for a in soup.select('a[href]'):
+                href = a['href'].split('#')[0].split('?')[0]
+                if href and not href.startswith(('https:', 'http:', 'mailto:')):
+                    self.assertTrue((page.parent / href).is_file(), (page, href))
+        self.assertTrue(self.index.select('details summary'))
+        titles = self.index.select('a.talk-title')
+        self.assertEqual(len(titles), sum(len(s['talks']) for s in self.sessions))
+        self.assertTrue(all(a['href'].startswith('talks/') for a in titles))
 
 
 if __name__ == '__main__':

@@ -80,23 +80,7 @@ with sync_playwright() as p:
     page.screenshot(path='/tmp/semantics-talks.png')
 
     page.set_viewport_size({'width': 390, 'height': 844})
-    page.goto(BASE_URL)
-    expect(page.locator('.session:visible')).to_have_count(31)
-    assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-    page.screenshot(path='/tmp/semantics-mobile.png')
-    # Fixed columns survive horizontal scrolling; headers survive vertical scrolling.
-    wrapper = page.locator('.day:visible .timetable-wrap')
-    wrapper.evaluate('(element) => { element.scrollLeft = 450; element.scrollTop = 280; }')
-    page.wait_for_function('document.querySelector(".day:not([hidden]) .timetable-wrap").scrollTop === 280')
-    bounds = wrapper.bounding_box()
-    corner = page.locator('.day:visible thead .time-cell').bounding_box()
-    room_header = page.locator('.day:visible thead th').nth(3).bounding_box()
-    assert abs(corner['x'] - bounds['x'] - 1) < 2
-    assert abs(corner['y'] - bounds['y'] - 1) < 2
-    assert abs(room_header['y'] - corner['y']) < 2
-    page.screenshot(path='/tmp/semantics-sticky.png')
     # A long session's time stays in view even after its row's top has scrolled away.
-    page.goto(BASE_URL + '?day=2026-09-16')
     wrapper = page.locator('.day:visible .timetable-wrap')
     target_row = page.locator('[id="2026-09-16-b6"]').locator('xpath=ancestor::tr')
     row_offset = target_row.evaluate('(row) => row.offsetTop')
@@ -119,4 +103,4 @@ with sync_playwright() as p:
     page.locator('a.talk-title').first.click()
     expect(page.locator('h1')).to_have_text(title_text)
     browser.close()
-    print('Browser checks passed: offline, native new tabs, disclosures, filters, fixed room/time axes, sticky long-session time, mobile width, no JavaScript.')
+    print('Browser checks passed: offline, native new tabs, disclosures, filters, room colours, sticky long-session time, no JavaScript.')
