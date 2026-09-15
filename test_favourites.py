@@ -120,7 +120,6 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     compact.locator('#selected-only').uncheck()
     expect(partial.locator('xpath=ancestor::td')).to_have_attribute('colspan', '3')
     compact_context.close()
-    browser.close()
 
     # Actual browser-profile restart, not just a retained in-memory page.
     context = p.chromium.launch_persistent_context(profile, channel='chrome', headless=True)
@@ -138,7 +137,6 @@ with sync_playwright() as p, TemporaryDirectory() as profile:
     page.screenshot(path='/tmp/semantics-favourites-mobile.png')
     context.close()
 
-    browser = p.chromium.launch(channel='chrome', headless=True)
     context = browser.new_context(offline=True)
     # Browser privacy policies may reject the localStorage getter itself.
     context.add_init_script("Object.defineProperty(window, 'localStorage', {get() { throw new DOMException('Blocked', 'SecurityError'); }});")

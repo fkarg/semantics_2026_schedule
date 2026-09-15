@@ -81,10 +81,10 @@ with sync_playwright() as p, TemporaryDirectory() as folder:
             assert export.bounding_box()['height'] >= 44
         else:
             # The full programme must remain below Google's 1 MB import limit.
+            # Seed this size-check fixture; star interactions are covered above.
+            page.locator('.favourite').evaluate_all('''buttons => buttons.forEach(button =>
+                localStorage.setItem('semantics2026:favourite:' + button.dataset.favouriteId, '1'))''')
             page.goto((ROOT / 'site/index.html').as_uri() + '?day=all')
-            for star in page.locator('.favourite').all():
-                if star.get_attribute('aria-pressed') == 'false':
-                    star.click()
             assert len(download_events(page)) == len([s for s in SESSIONS if s['room']])
         assert not errors, errors
         context.close()

@@ -140,7 +140,7 @@ and RFC 5545 https://www.rfc-editor.org/rfc/rfc5545.html.
       details, correct UTC times, stable UIDs, escaping/folding and mobile widths.
 - [x] Generate calendar metadata, add the download control/serializer and rebuild.
 - [x] Run export, unit, favourites and mobile workflows; review and document.
-- [ ] Commit, push, follow Pages deployment and verify published export assets.
+- [x] Commit, push, follow Pages deployment and verify published export assets.
 
 Internal GPT-6 Astra review attempted to falsify interval validity, filter
 independence, memory-only/cross-tab state, text escaping/folding and metadata
@@ -150,3 +150,17 @@ The calendar test checks all 47 selectable sessions fit under Google's 1 MB limi
 as well as full abstracts, stable UIDs, exact UTC intervals, multiline Unicode
 round-tripping, native downloads at 320/390/1440px, and empty-selection disabling.
 Actual Google-account import and Safari remain untested.
+Published in 0819fe4; Pages run 34962753080 passed and the live JavaScript matches
+the committed asset.
+
+## Browser test runtime
+
+Read-only GPT-6 Astra profiling measured all five browser suites at 19.63 seconds:
+calendar 5.55s, favourites 6.24s, mobile 3.45s, browser 2.73s, now 1.67s.
+No fixed sleeps or external-network waits were found. Permission/tool startup
+and failed locator waits account for the longer observed development pauses.
+Outcome: changed test setup in two places. Seed favourites directly only for the
+full-calendar size fixture, keeping UI selection/export checks; reuse the ordinary
+browser across isolated favourites contexts, retaining both persistent-profile
+launches that test actual browser restart. Both suites pass after the change:
+calendar 3.71s and favourites 5.02s in the follow-up timed run. No assertions removed.
