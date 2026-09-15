@@ -121,3 +121,32 @@ Outcome: added verification of red pseudo-elements and a horizontally scrolled
 mobile marker inside the viewport. Clock-controlled tests and all existing unit,
 favourites, phone and browser workflows passed. Publish via the existing Pages
 workflow and verify its result.
+
+## Selected-session calendar export
+
+Download a snapshot `.ics` of every currently starred session across all days,
+independent of view filters. One event per session includes the published start/end,
+room, title, chair, session description/notes, all talk titles/speakers/abstracts,
+and absolute hosted detail/source links. Shared events are not exported. Generate
+structured metadata offline in build.py, converting Europe/Brussels to UTC there;
+serialize selected metadata in the browser without requests or new dependencies.
+Use stable favourite-based UIDs, CRLF, TEXT escaping and UTF-8 byte-aware folding.
+Disable export when nothing is selected; label the all-days scope beside it.
+Google documents desktop Settings → Import & export; this does not synchronize
+future selection changes. Source: https://support.google.com/calendar/answer/37118
+and RFC 5545 https://www.rfc-editor.org/rfc/rfc5545.html.
+
+- [x] Add browser download tests for all-days selection despite filters, full
+      details, correct UTC times, stable UIDs, escaping/folding and mobile widths.
+- [x] Generate calendar metadata, add the download control/serializer and rebuild.
+- [x] Run export, unit, favourites and mobile workflows; review and document.
+- [ ] Commit, push, follow Pages deployment and verify published export assets.
+
+Internal GPT-6 Astra review attempted to falsify interval validity, filter
+independence, memory-only/cross-tab state, text escaping/folding and metadata
+fidelity. No defects found. Outcome: added HTTP touch-download verification.
+All 11 unit tests and calendar, favourites, mobile and live-marker workflows pass.
+The calendar test checks all 47 selectable sessions fit under Google's 1 MB limit,
+as well as full abstracts, stable UIDs, exact UTC intervals, multiline Unicode
+round-tripping, native downloads at 320/390/1440px, and empty-selection disabling.
+Actual Google-account import and Safari remain untested.

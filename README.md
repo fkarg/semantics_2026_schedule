@@ -44,6 +44,19 @@ The star controls live on the timetable, not the separate detail pages.
 Favourites are local to each browser and website address: laptop/file selections
 do not automatically transfer to the hosted site or your phone.
 
+**Export selected (.ics)** downloads all starred sessions across all days, regardless
+of the current search, room or day filter. Each calendar event contains the session
+title, room, published start/end time, chair, description/notes, full available talk
+abstracts and speakers, and links to session/talk pages and official sources. Shared
+breaks are excluded. Times are exported in UTC to preserve the correct Ghent time
+when imported from another timezone; individual talks retain their parent session.
+
+In Google Calendar **on a computer**, open **Settings → Import & export**, choose
+the downloaded `.ics` file and destination calendar, then **Import**
+([Google's instructions](https://support.google.com/calendar/answer/37118?hl=en)).
+This is a snapshot: changing your stars later does not update or remove imported
+events. A separate conference calendar makes the imported schedule easy to manage.
+
 Saving was verified in Chrome with the directly opened local file, including a
 browser restart. Other browsers handle storage for `file:` URLs differently
 ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)). Keep
@@ -93,6 +106,7 @@ uv pip install --python .venv/bin/python playwright
 .venv/bin/python test_favourites.py
 .venv/bin/python test_mobile.py
 .venv/bin/python test_now.py
+.venv/bin/python test_calendar.py
 ```
 
 Source: <https://2026-eu.semantics.cc/page/programme>. This is a personal local

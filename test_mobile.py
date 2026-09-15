@@ -20,7 +20,7 @@ try:
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(URL)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-            for selector in ('#search', '#room', '#clear', '.selected-filter', '.days a', '.favourite'):
+            for selector in ('#search', '#room', '#clear', '#export-calendar', '.selected-filter', '.days a', '.favourite'):
                 target = page.locator(selector + ':visible').first
                 assert target.bounding_box()['height'] >= 44, selector
             assert page.locator('#search').evaluate('(el) => parseFloat(getComputedStyle(el).fontSize)') >= 16
@@ -42,6 +42,12 @@ try:
             page.reload()
             expect(star).to_have_attribute('aria-pressed', 'true')
             expect(page.locator('#selected-only')).to_be_checked()
+            with page.expect_download() as pending:
+                page.locator('#export-calendar').tap()
+            calendar = Path(pending.value.path()).read_text().replace('\n ', '')
+            assert calendar.count('BEGIN:VEVENT') == 1
+            assert 'DTSTART:20260915T082000Z' in calendar
+            assert 'SUMMARY:Trustworthy Knowledge Graph Systems and Infrastructure' in calendar
             expect(lunch).to_be_visible()
             details = page.locator('[id="2026-09-15-c6"] details').first
             details.locator('summary').tap()

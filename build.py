@@ -14,12 +14,14 @@ import unicodedata
 from urllib.parse import urljoin, urlparse
 import xml.etree.ElementTree as ET
 import zipfile
+from zoneinfo import ZoneInfo
 
 from bs4 import BeautifulSoup
 import markdown
 
 ROOT = Path(__file__).resolve().parent
 BASE = 'https://2026-eu.semantics.cc/'
+SITE_URL = 'https://www.fkarg.me/semantics_2026_schedule/'
 WORKBOOK = 'https://docs.google.com/spreadsheets/d/1LUhUeGu-op2PES1YuhkJGS4--v87Emu2tTeO-o_tM0g/export?format=xlsx'
 NS = {'s': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
       'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
@@ -249,6 +251,37 @@ def session_details(session):
     return content
 
 
+def calendar_event(session):
+    """Portable event data; the browser chooses which sessions to serialize."""
+    start, end = [datetime.fromisoformat(session['day'] + 'T' + time.strip())
+                  .replace(tzinfo=ZoneInfo('Europe/Brussels')).astimezone(timezone.utc)
+                  .strftime('%Y%m%dT%H%M%SZ') for time in session['time'].split('–')]
+    url = SITE_URL + f'sessions/{session["id"]}.html'
+    description = ['SEMANTiCS 2026 · ' + session['label'],
+                   session['day'] + ' · ' + session['time'] + ' CEST · ' + session['room'], url]
+    if session['chair']:
+        description.append('Chair: ' + session['chair'])
+    # Keep prose and linked workshop/meeting resources in the plain-text export.
+    details = BeautifulSoup(session['description'] + markdown.markdown('\n\n'.join(session['notes'])), 'html.parser')
+    if details.get_text(strip=True):
+        description.append(details.get_text('\n', strip=True))
+    for link in details.select('a[href]'):
+        description.append(link.get_text(' ', strip=True) + ': ' + urljoin(BASE, link['href']))
+    if session['time_conflict']:
+        description.append('The source document lists a different time (' + session['source_time'] +
+                           '). This event follows the programme timetable.')
+    if session['talks']:
+        description.append('Talks (individual talk times are not published):')
+    for talk in session['talks']:
+        description.append('\n'.join(filter(None, [talk['title'], talk['speaker'], talk['track'],
+            talk['abstract'] or 'Abstract not published.', SITE_URL + f'talks/{talk["id"]}.html'])))
+    for key, label in [('source', 'Official details'), ('document', 'Source document')]:
+        if session.get(key):
+            description.append(label + ': ' + session[key])
+    return dict(start=start, end=end, title=session['title'], location=session['room'] + ', Ghent',
+                description='\n\n'.join(description), url=url)
+
+
 def build_site(sessions, destination, stamp):
     destination.mkdir(parents=True, exist_ok=True)
     for sub in ('sessions', 'talks'):
@@ -277,7 +310,7 @@ def build_site(sessions, destination, stamp):
     body += '<a href="index.html?day=all" data-day="">All days</a></nav>'
     body += '<div class="filter-row"><label class="search-label"><span class="sr-only">Search programme</span><input id="search" type="search" placeholder="Search talks, speakers, topics…" autocomplete="off"></label><label><span class="sr-only">Room</span><select id="room"><option value="">All rooms</option>'
     body += ''.join(f'<option>{escape(room)}</option>' for room in rooms)
-    body += '</select></label><label class="selected-filter" hidden><input id="selected-only" type="checkbox">Selected only <span id="selected-count"></span></label><button id="clear" type="button">Clear</button><p id="result-count" role="status" aria-live="polite"></p></div></section><p id="storage-notice" role="status" hidden>This browser cannot save favourites. Your selections will last only while this page stays open.</p><noscript><p>All days are shown. Browser Find works without JavaScript.</p></noscript><p id="empty" hidden>No matching sessions. Try another search or clear the filters.</p>'
+    body += '</select></label><label class="selected-filter" hidden><input id="selected-only" type="checkbox">Selected only <span id="selected-count"></span></label><button id="clear" type="button">Clear</button><p id="result-count" role="status" aria-live="polite"></p></div><div class="calendar-export" hidden><button id="export-calendar" type="button" disabled aria-describedby="export-hint">Export selected (.ics)</button><span id="export-hint">All starred sessions, all days · Calendar import</span></div></section><p id="storage-notice" role="status" hidden>This browser cannot save favourites. Your selections will last only while this page stays open.</p><noscript><p>All days are shown. Browser Find works without JavaScript.</p></noscript><p id="empty" hidden>No matching sessions. Try another search or clear the filters.</p>'
     for day, (weekday, date, label) in DAYS.items():
         body += f'<section class="day" data-day="{day}"><header class="day-heading"><h1>{weekday}, {date} <span>· {label}</span></h1><p>CEST · Titles open as normal links · Expand abstracts in place</p></header>'
         day_sessions = [s for s in sessions if s['day'] == day]
@@ -305,7 +338,8 @@ def build_site(sessions, destination, stamp):
                 favourite_id = hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:16]
                 body += f'<td data-column="{col}" colspan="{session["colspan"]}" class="event-cell" data-room="{escape(session["room"], quote=True)}"><article id="{session["id"]}" class="session{" compact" if not meaningful else ""}" data-room="{escape(session["room"], quote=True)}" data-search="{escape(search, quote=True)}"><div class="card-kicker">{escape(session["label"] or "Programme")}</div><div class="session-heading"><h2 class="session-title"><a href="sessions/{session["id"]}.html">{escape(session["title"])}</a></h2>'
                 if session['room']:
-                    body += f'<button class="favourite" data-favourite-id="{favourite_id}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button>'
+                    calendar = escape(json.dumps(calendar_event(session), ensure_ascii=False), quote=True)
+                    body += f'<button class="favourite" data-favourite-id="{favourite_id}" data-calendar="{calendar}" type="button" aria-pressed="false" aria-label="Favourite session: {escape(session["title"], quote=True)}" title="Favourite this session" hidden>☆</button>'
                 body += '</div>'
                 if session['chair']:
                     body += '<p class="chair">Chair: '+escape(session['chair'])+'</p>'
